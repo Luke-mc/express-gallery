@@ -9,6 +9,8 @@ const Gallery = db.Gallery;
 
 app.use(bp.urlencoded());
 
+app.use(express.static("public"));
+
 app.use(methodOverride('X-HTTP-Method-Override'));
 app.use(methodOverride(function(req, res) {
   if (req.body && typeof req.body === 'object' && '_method' in req.body) {
@@ -56,14 +58,14 @@ app.post("/gallery-submission", (req, res) => {
     }).then((data) => {
       console.log(data);
       console.log('created a new PIC');
-      res.end();
+      res.redirect("/");
     }).catch((err) => {
       console.log(err);
     });
-    res.redirect("/");
+
 });
 
-app.post('/gallery', (req, res) => {
+app.post('/gallery/new', (req, res) => {
   console.log(req.body);
   Gallery.create({
     author: req.body.author,
@@ -111,6 +113,18 @@ Gallery.findById(parseInt(req.params.id))
         console.log(err);
       });
 
+  })
+  .delete((req, res) => {
+    Gallery.destroy({
+        where: {
+          id: parseInt(req.params.id)
+        }
+      }).then((data) => {
+          console.log('Deleted');
+          res.redirect("/");
+        }).catch((err) => {
+          console.log(err);
+        });
   });
 
   app.get("/gallery/:id/edit", (req, res) => {
