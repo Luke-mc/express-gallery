@@ -1,0 +1,11 @@
+<h1>Gallery</h1>
+<br>
+<br>
+<div>
+    {{#each data}}
+        <div class= "pictures">
+          <strong>author:{{author}} <br> description:{{description}} <br> <a href="{{link}}">{{link}}</a></strong>
+        </div>
+        <img src="{{link}}">
+    {{/each}}
+</div>

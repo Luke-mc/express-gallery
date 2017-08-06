@@ -1,0 +1,15 @@
+<div>
+  <form action="/gallery/{{picture.id}}" method="post">
+    <input type="hidden" name="_method" value="PUT">
+    <label for="link">Link</label>
+    <input id="link" type="text" name="link" value= {{picture.link}}>
+    <br>
+    <label for="author">Author</label>
+    <input id="author" type="text" name="author" value= {{picture.author}}>
+    <br>
+    <label for="description">Description</label>
+    <input id="description" type="text" name="description" value= {{picture.description}}>
+    <br>
+    <input type="submit" value="Send">
+  </form>
+</div>
