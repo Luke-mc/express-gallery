@@ -5,9 +5,72 @@ const app = express();
 const bp = require('body-parser');
 const exphbs = require('express-handlebars');
 const methodOverride = require("method-override");
+const passport = require('passport');
+const LocalStrategy = require('passport-local').Strategy;
+const session = require('express-session');
 const Gallery = db.Gallery;
 
 app.use(bp.urlencoded());
+
+app.use(session({
+  secret: 'keyboard cat',
+  resave: false,
+  saveUninitialized: true
+}));
+
+app.use(passport.initialize());
+
+app.use(passport.session());
+
+
+      //Passport code here//
+
+//       passport.use(new LocalStrategy(
+//   function(username, password, done) {
+//     console.log('client side username', username);
+//     console.log('client side password', password);
+//     User.findOne({
+//       where: {
+//         username: username
+//       }
+//     }).then((user) => {
+//       console.log('User exists in DB');
+//       if(user.password === password){
+//         console.log('username and password successful');
+//         return done(null, user);
+//       }else{
+//         console.log('Password incorrect');
+//         return done(null, false, {message: ' Incorrect password'});
+//       }
+//     }).catch((err) => {
+//       console.log('username not found');
+//       console.log(err);
+//       return done(null, false, {message: ' Incorrect Username'});
+//     });
+//   }
+// ));
+
+// passport.serializeUser((user, done) => {
+//   console.log('serializing user into session');
+//   done (null, user.id);
+// });
+
+// passport.deserializeUser((userId, done) => {
+//   console.log('adding user info into request object');
+//   User.finOne({
+//     where: {
+//       id:userId
+//     }
+//   }).then((user) => {
+//     return (null, {
+//       id: user.id,
+//       username: user.username
+//     });
+//   }).catch((err) => {
+//     done(err, user);
+//   });
+// });
+
 
 app.use(express.static("public"));
 
@@ -45,7 +108,7 @@ app.get('/', (req, res) => {
 
 app.get('/gallery/new', (req, res) => {
   errorMessage = null;
-  res.render('partials/edit', {
+  res.render('partials/new', {
     error: errorMessage
   });
 });
@@ -56,7 +119,7 @@ app.post("/gallery-submission", (req, res) => {
       link: req.body.link,
       description: req.body.description
     }).then((data) => {
-      console.log(data);
+      //console.log(data);
       console.log('created a new PIC');
       res.redirect("/");
     }).catch((err) => {
