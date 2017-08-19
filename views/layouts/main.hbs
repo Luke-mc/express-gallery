@@ -2,12 +2,39 @@
 <html lang="en">
 <head>
   <link rel="stylesheet" href="/styles/style.css">
+  <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
   <meta charset="UTF-8">
   <title>Document</title>
 </head>
 <body>
+<header>
+ <div class="contain">
+  <a href="#home">User</a>
+  <a href="#news">Login</a>
+  <div class="dropdown">
+    <button class="dropbtn" onclick="myFunction()">Dropdown</button>
+    <div class="dropdown-content" id="myDropdown">
+      <a href="#">Add Photo</a>
+      <a href="#">Edit Photo</a>
+    </div>
+  </div>
+</div>
+  </header>
   <div class="container">
     {{{body}}}
   </div>
+ <script>
+ function myFunction() {
+    document.getElementById("myDropdown").classList.toggle("show");
+}
+window.onclick = function(e) {
+  if (!e.target.matches('.dropbtn')) {
+    var myDropdown = document.getElementById("myDropdown");
+      if (myDropdown.classList.contains('show')) {
+        myDropdown.classList.remove('show');
+      }
+  }
+};
+ </script>
 </body>
 </html>

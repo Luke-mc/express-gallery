@@ -1,9 +1,58 @@
-<h1>Gallery {{picture.id}} </h1>
-<br>
-<br>
-<div>
-  <div class= "{{picture.id}}">
-    <strong>author:{{picture.author}} <br> description:{{picture.description}} <br> <a href="{{picture.link}}">{{picture.link}}</a></strong>
+
+<div id="left_column">
+  <div id= "header">
+    _ARCHITEKT
   </div>
-  <img src="{{picture.link}}">
+  <div id="first">
+    {{#itemAt data 1}}
+        {{data.author}} <br><br>
+        <img src="{{link}}"><br><br><br>
+        {{description}} <br>
+        {{/itemAt}}
+  </div>
 </div>
+
+<div class="pic_container">
+  <div id="welcome">
+    Welcome to our online portfolio,<br> we are small group  of pasionate<br> designers and architects, looking to <br> change and create amazing <br>digital images to  inspire others to <br> follow in opur innovative steps. Free <br> Architect WordPress Theme
+  </div>
+    {{#each data}}
+
+        <div class= "pictures"><br>
+          <img src="{{link}}">
+         {{author}} <br>
+        </div>
+
+    {{/each}}
+</div>
+
+{{!--
+<div id="left_column">
+  <div id= "header">
+    _ARCHITEKT
+  </div>
+  <div id="first">
+    {{#each data}}
+      {{#if @last}}
+        {{author}} <br><br>
+        <img src="{{link}}"><br><br><br>
+        {{description}} <br>
+      {{/if}}
+    {{/each}}
+  </div>
+</div>
+
+<div class="pic_container">
+  <div id="welcome">
+    Welcome to our online portfolio,<br> we are small group  of pasionate<br> designers and architects, looking to <br> change and create amazing <br>digital images to  inspire others to <br> follow in opur innovative steps. Free <br> Architect WordPress Theme
+  </div>
+    {{#each data}}
+      {{#unless @last}}
+        <div class= "pictures"><br>
+          <img src="{{link}}">
+         {{author}} <br>
+        </div>
+        {{/unless}}
+    {{/each}}
+</div>
+ --}}

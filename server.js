@@ -9,6 +9,11 @@ const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const session = require('express-session');
 const Gallery = db.Gallery;
+const User = db.User;
+var helpers = require('handlebars-helpers')();
+const bcrypt = require('bcrypt');
+const saltRounds = 10;
+
 
 app.use(bp.urlencoded());
 
@@ -17,62 +22,6 @@ app.use(session({
   resave: false,
   saveUninitialized: true
 }));
-
-app.use(passport.initialize());
-
-app.use(passport.session());
-
-
-      //Passport code here//
-
-//       passport.use(new LocalStrategy(
-//   function(username, password, done) {
-//     console.log('client side username', username);
-//     console.log('client side password', password);
-//     User.findOne({
-//       where: {
-//         username: username
-//       }
-//     }).then((user) => {
-//       console.log('User exists in DB');
-//       if(user.password === password){
-//         console.log('username and password successful');
-//         return done(null, user);
-//       }else{
-//         console.log('Password incorrect');
-//         return done(null, false, {message: ' Incorrect password'});
-//       }
-//     }).catch((err) => {
-//       console.log('username not found');
-//       console.log(err);
-//       return done(null, false, {message: ' Incorrect Username'});
-//     });
-//   }
-// ));
-
-// passport.serializeUser((user, done) => {
-//   console.log('serializing user into session');
-//   done (null, user.id);
-// });
-
-// passport.deserializeUser((userId, done) => {
-//   console.log('adding user info into request object');
-//   User.finOne({
-//     where: {
-//       id:userId
-//     }
-//   }).then((user) => {
-//     return (null, {
-//       id: user.id,
-//       username: user.username
-//     });
-//   }).catch((err) => {
-//     done(err, user);
-//   });
-// });
-
-
-app.use(express.static("public"));
 
 app.use(methodOverride('X-HTTP-Method-Override'));
 app.use(methodOverride(function(req, res) {
@@ -92,11 +41,129 @@ const hbs = exphbs.create({
 app.engine(".hbs", hbs.engine);
 app.set("view engine", ".hbs");
 
+app.use(passport.initialize());
+
+app.use(passport.session());
+
+
+      //Passport code here//
+
+ passport.use(new LocalStrategy(
+  function(username, password, done) {
+    console.log('client side username', username);
+    console.log('client side password', password);
+    User.findOne({
+      where: {
+        username: username
+      }
+    }).then((user) => {
+      console.log('User exists in DB');
+      let userHashPassword = user.password;
+      console.log(userHashPassword);
+      console.log(password);
+      bcrypt.compare(password, userHashPassword, (err, result) => {
+        if (err) {
+          console.log(err);
+          return done(err);
+        }
+        if(result) {
+          return done(null, user);
+        }else{
+          return done(null, false, {message: 'Incorrect password'});
+        }
+      });
+    }).catch((err) => {
+      console.log('username not found');
+      console.log(err);
+      return done(null, false, {message: ' Incorrect Username'});
+    });
+  }
+));
+
+passport.serializeUser((user, done) => {
+  console.log('serializing user into session');
+  done (null, user.id);
+});
+
+passport.deserializeUser((userId, done) => {
+  console.log('adding user info into request object');
+  User.findOne({
+    where: {
+      id:userId
+    }
+  }).then((user) => {
+    console.log('test 1');
+    return done(null, {
+      id: user.id,
+      username: user.username
+    });
+  }).catch((err) => {
+    done(err, user);
+  });
+});
+
+
+app.use(express.static("public"));
+
+app.get('/login', (req, res) => {
+  errorMessage = null;
+  res.render('partials/login', {
+    error: errorMessage
+  });
+
+});
+
+app.get('/createuser', (req, res) => {
+  errorMessage = null;
+  res.render('partials/create_user', {
+    error: errorMessage
+  });
+});
+
+app.post("/createuser-submission", (req, res) => {
+  bcrypt.genSalt(saltRounds, (errr, salt) => {
+     bcrypt.hash(req.body.password, salt, (err, hash) => {
+        User.create({
+          username: req.body.username,
+          password: hash,
+        }).then((data) => {
+          console.log('created a new user');
+          res.redirect('/createuser');
+
+        }).catch((err) => {
+          console.log(err);
+        });
+      });
+   });
+});
+
+
+
+
+
+app.post('/login', passport.authenticate('local', {
+  successRedirect: '/gallery/new',
+  failureRedirect: '/login'
+}));
+
+// app.get('/secret', userAuthenticated, (req, res) => {
+//   console.log(req.user);
+//   res.send('this is the secret');
+// });
+
+function userAuthenticated (req, res, next){
+  if (req.isAuthenticated()){
+    console.log('user is good!');
+    next();
+  }else{
+    console.log('user not good');
+    res.redirect('/login');
+  }
+}
 
 app.get('/', (req, res) => {
   Gallery.findAll()
     .then((picture) => {
-      console.log(picture);
       res.render("partials/index", {
         data: picture
      });
@@ -106,7 +173,7 @@ app.get('/', (req, res) => {
     });
 });
 
-app.get('/gallery/new', (req, res) => {
+app.get('/gallery/new', userAuthenticated, (req, res) => {
   errorMessage = null;
   res.render('partials/new', {
     error: errorMessage
@@ -129,7 +196,6 @@ app.post("/gallery-submission", (req, res) => {
 });
 
 app.post('/gallery/new', (req, res) => {
-  console.log(req.body);
   Gallery.create({
     author: req.body.author,
     link: req.body.link,
@@ -145,12 +211,13 @@ app.post('/gallery/new', (req, res) => {
 
 app.route("/gallery/:id")
   .get((req, res) => {
-Gallery.findById(parseInt(req.params.id))
-    .then((picture) => {
-    res.render("partials/id", {
-        picture: picture
-     });
-    })
+     Gallery.findAll()
+      .then((data) => {
+      res.render("partials/id", {
+        data: data,
+        id: req.params.id
+        });
+     })
     .catch((err) => {
       console.log(err);
     });

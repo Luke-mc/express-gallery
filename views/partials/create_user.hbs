@@ -1,0 +1,19 @@
+
+<div class="user_header">Create New User</div>
+<br>
+<div>
+  <form action="/createuser-submission" method="post">
+  <label for="username">username</label>
+  <input id="username" type="text" name="username" placeholder="username">
+  <br>
+  <label for="password">password</label>
+  <input id = "password" type="password" name="password" placeholder="password">
+  <br>
+  <input type="submit" name="" value="Send">
+</form>
+</div>
+<br>
+<br>
+<div class="error">
+  <strong>{{error}}</strong>
+</div>
