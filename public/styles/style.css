@@ -43,7 +43,8 @@
   #first img {
     width: 90%;
     max-height: 40rem;
-    object-fit: cover; }
+    object-fit: cover;
+    position: absolute; }
   @media screen and (max-width: 540px) {
     #first {
       max-width: 22rem;
@@ -51,7 +52,6 @@
   @media screen and (min-width: 540px) {
     #first {
       flex-direction: column;
-      align-self: flex-start;
       padding-bottom: 32rem;
       border-bottom: 1px dashed gray; } }
 
@@ -71,7 +71,6 @@
   #header {
     display: flex;
     flex-direction: row;
-    padding-bottom: 4.3%;
     width: 100%;
     justify-content: center;
     color: gray;
@@ -133,7 +132,7 @@
 
 .dropdown-content a {
   float: none;
-  color: black;
+  color: gray;
   padding: 12px 16px;
   text-decoration: none;
   display: block;
@@ -144,3 +143,50 @@
 
 .show {
   display: block; }
+
+@media screen and (min-width: 540px) {
+  .container_single {
+    display: flex;
+    flex-direction: row; } }
+
+@media screen and (max-width: 540px) {
+  .pic_container_single {
+    display: none; } }
+
+@media screen and (min-width: 540px) {
+  .pic_container_single {
+    display: flex;
+    flex-direction: column;
+    width: calc(33% - 0.5rem);
+    margin-top: 1.5rem;
+    width: 10rem;
+    height: 10rem; }
+    .pic_container_single img {
+      width: 10rem;
+      height: 10rem;
+      object-fit: cover; } }
+
+.pictures {
+  margin-left: 8%;
+  max-width: 10rem;
+  opacity: .9; }
+
+#first_single {
+  height: 10rem;
+  font-size: 80%; }
+  #first_single img {
+    width: 100%;
+    max-height: 40rem;
+    object-fit: cover; }
+  @media screen and (max-width: 540px) {
+    #first_single {
+      max-width: 22rem;
+      margin: 0 auto; } }
+  @media screen and (min-width: 540px) {
+    #first_single {
+      flex-direction: column;
+      align-self: flex-start; } }
+
+@media screen and (max-width: 540px) {
+  #left_column_single {
+    margin-top: 1.5rem; } }

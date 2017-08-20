@@ -2,24 +2,31 @@ const express = require ('express');
 const PORT = process.env.PORT || 3000;
 const db = require('./models');
 const app = express();
+const redis = require('redis');
 const bp = require('body-parser');
 const exphbs = require('express-handlebars');
 const methodOverride = require("method-override");
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const session = require('express-session');
+const RedisStore = require('connect-redis')(session);
 const Gallery = db.Gallery;
 const User = db.User;
 var helpers = require('handlebars-helpers')();
 const bcrypt = require('bcrypt');
+const photoMeta = require('./collections/mongodb_meta.js').photoMeta;
 const saltRounds = 10;
-
+let loggedIn = false;
 
 app.use(bp.urlencoded());
 
 app.use(session({
-  secret: 'keyboard cat',
-  resave: false,
+  store: new RedisStore(),
+  secret: 'Keyboard Cat',
+  name: 'super_sessions',
+  cookie: {
+    maxAge: 1000000
+  },
   saveUninitialized: true
 }));
 
@@ -93,6 +100,7 @@ passport.deserializeUser((userId, done) => {
     }
   }).then((user) => {
     console.log('test 1');
+    loggedIn = true;
     return done(null, {
       id: user.id,
       username: user.username
@@ -108,7 +116,8 @@ app.use(express.static("public"));
 app.get('/login', (req, res) => {
   errorMessage = null;
   res.render('partials/login', {
-    error: errorMessage
+    error: errorMessage,
+    log: loggedIn
   });
 
 });
@@ -116,7 +125,8 @@ app.get('/login', (req, res) => {
 app.get('/createuser', (req, res) => {
   errorMessage = null;
   res.render('partials/create_user', {
-    error: errorMessage
+    error: errorMessage,
+    log: loggedIn
   });
 });
 
@@ -128,7 +138,7 @@ app.post("/createuser-submission", (req, res) => {
           password: hash,
         }).then((data) => {
           console.log('created a new user');
-          res.redirect('/createuser');
+          res.redirect('/');
 
         }).catch((err) => {
           console.log(err);
@@ -138,13 +148,16 @@ app.post("/createuser-submission", (req, res) => {
 });
 
 
-
-
-
 app.post('/login', passport.authenticate('local', {
   successRedirect: '/gallery/new',
   failureRedirect: '/login'
 }));
+
+app.get('/logout', function(req, res){
+  loggedIn = false;
+  req.logout();
+  res.redirect('/');
+});
 
 // app.get('/secret', userAuthenticated, (req, res) => {
 //   console.log(req.user);
@@ -162,21 +175,25 @@ function userAuthenticated (req, res, next){
 }
 
 app.get('/', (req, res) => {
+  photoMeta().insertOne({name: 'dog'});
   Gallery.findAll()
     .then((picture) => {
       res.render("partials/index", {
-        data: picture
-     });
+        data: picture,
+        log: loggedIn
+       });
     })
     .catch((err) => {
       console.log(err);
     });
 });
 
+
 app.get('/gallery/new', userAuthenticated, (req, res) => {
   errorMessage = null;
   res.render('partials/new', {
-    error: errorMessage
+    error: errorMessage,
+    log: loggedIn
   });
 });
 
@@ -211,11 +228,11 @@ app.post('/gallery/new', (req, res) => {
 
 app.route("/gallery/:id")
   .get((req, res) => {
-     Gallery.findAll()
+     Gallery.findById(parseInt(req.params.id))
       .then((data) => {
       res.render("partials/id", {
         data: data,
-        id: req.params.id
+        log: loggedIn
         });
      })
     .catch((err) => {
@@ -261,7 +278,8 @@ app.route("/gallery/:id")
     Gallery.findById(parseInt(req.params.id))
      .then((picture) => {
        res.render("partials/edit", {
-       picture: picture
+       picture: picture,
+       log: loggedIn
      });
     })
     .catch((err) => {

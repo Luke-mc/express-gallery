@@ -7,20 +7,24 @@
   <title>Document</title>
 </head>
 <body>
-<header>
- <div class="contain">
-  <a href="#home">User</a>
-  <a href="#news">Login</a>
-  <div class="dropdown">
-    <button class="dropbtn" onclick="myFunction()">Dropdown</button>
-    <div class="dropdown-content" id="myDropdown">
-      <a href="#">Add Photo</a>
-      <a href="#">Edit Photo</a>
-    </div>
-  </div>
-</div>
-  </header>
+
+{{>header}}
+
+{{!-- {{#if log}}
+  {{>logged_on_header}}
+{{else}}
+  {{>logged_off_header}}
+{{/if}} --}}
+
   <div class="container">
+    <div id= "header">
+   <div class="name">
+      _ARCHITEKT
+    </div>
+     <div id="welcome">
+      Welcome to our online portfolio, we are small group <br> of pasionatedesigners and architects, looking to <br> change and create amazing digital images to <br>  inspire others to follow in opur innovative steps. Free <br> Architect WordPress Theme
+     </div>
+   </div>
     {{{body}}}
   </div>
  <script>
