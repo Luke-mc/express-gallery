@@ -100,7 +100,6 @@ passport.deserializeUser((userId, done) => {
     }
   }).then((user) => {
     console.log('test 1');
-    loggedIn = true;
     return done(null, {
       id: user.id,
       username: user.username
@@ -147,7 +146,6 @@ app.post("/createuser-submission", (req, res) => {
    });
 });
 
-
 app.post('/login', passport.authenticate('local', {
   successRedirect: '/gallery/new',
   failureRedirect: '/login'
@@ -175,12 +173,10 @@ function userAuthenticated (req, res, next){
 }
 
 app.get('/', (req, res) => {
-  photoMeta().insertOne({name: 'dog'});
   Gallery.findAll()
     .then((picture) => {
       res.render("partials/index", {
         data: picture,
-        log: loggedIn
        });
     })
     .catch((err) => {
@@ -188,12 +184,10 @@ app.get('/', (req, res) => {
     });
 });
 
-
-app.get('/gallery/new', userAuthenticated, (req, res) => {
+app.get('/gallery/new', (req, res) => {
   errorMessage = null;
   res.render('partials/new', {
     error: errorMessage,
-    log: loggedIn
   });
 });
 
@@ -203,27 +197,18 @@ app.post("/gallery-submission", (req, res) => {
       link: req.body.link,
       description: req.body.description
     }).then((data) => {
-      //console.log(data);
+      console.log(req.body);
+      console.log(req.params.id);
+      var metaTags = {
+        id: req.body.id,
+        meta: req.body.meta
+      };
+      photoMeta().insertOne(metaTags);
       console.log('created a new PIC');
       res.redirect("/");
     }).catch((err) => {
       console.log(err);
     });
-
-});
-
-app.post('/gallery/new', (req, res) => {
-  Gallery.create({
-    author: req.body.author,
-    link: req.body.link,
-    description: req.body.description
-  }).then((data) => {
-    console.log(data);
-    console.log('created a new PIC');
-    res.end();
-  }).catch((err) => {
-    console.log(err);
-  });
 });
 
 app.route("/gallery/:id")
